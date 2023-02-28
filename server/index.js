@@ -52,6 +52,42 @@ app.post('/register', (req, res) => {
     });
 });
 
+
+
+/**
+ * Создаю роут по которому буду авторизироваться. Использую метод post
+ */
+app.post('/login', (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    // Создаем запрос к БД
+    db.query(
+        "SELECT * FROM user_list WHERE username = ? AND password = ?",
+        [username, password],
+        (err, result) => {
+            // Если будет ошибка, то отправим клиенту эту ошибку
+            if (err) {
+                res.send({ err: err })
+            }
+
+            /**
+             * Проверяем по длине массива, который будет содержать наши данные.
+             * Если совпадений нет, то будет 0, если есть, то, конечно, будет >= 1
+             * 
+             * Если такой пользователь есть, то просто передаем в ответ (data) массив с данными из БД (id, username, password)
+             */
+            if (result.length > 0) {
+                res.send(result)
+            } else {
+                // Если нет совпадений, то отправим клиенту это сообщение в ответе (data)
+                res.send({ message: "Wrong username/password combination!" })
+            }
+    });
+});
+
+
+
 // Запускаем приложение на 3001 порту, но лучше порт, данные для доступа к БД передавать через env-кофигурационный файл.
 app.listen(3001, () => {
     console.log("Running server...");

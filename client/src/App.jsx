@@ -13,6 +13,17 @@ const App = () => {
     const [passwordReg, setPasswordReg] = useState('');
 
     /**
+     * Для авторизации так же создаем состояния: username и password
+     */
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+
+    /**
+     * Чтобы понимать авторизованы мы или нет, создадим еще состояия для этого:
+     */
+    const [loginStatus, setloginStatus] = useState('');
+
+    /**
      * Создадим функцию для регистрации.
      * Для фетчинга (отправки и получения запросов) будем использовать axios.
      */
@@ -30,6 +41,27 @@ const App = () => {
             // Если все ок, то просто выводим результат в консоль.
         }).then(res => {
             console.log(res);
+        })
+    }
+
+
+    const login = () => {
+        axios.post('http://localhost:3001/login', {
+            username: username,
+            password: password
+        }).then(res => {
+            /**
+             * Если будет в ответе свойство message, которое мы создаем на сервере,
+             * то устанавливаем стейт с этим сообщением.
+             */
+            if (res.data.message) {
+                setloginStatus(res.data.message);
+            /**
+             * Иначе мы получаем пользователя в стейт записываем его username.
+             */
+            } else {
+                setloginStatus(res.data[0].username)
+            }
         })
     }
 
@@ -54,12 +86,27 @@ const App = () => {
                 <button onClick={register}>Register</button>
             </div>
 
+
+
+
             <div className="login">
+                {/* Авторизация. Так же делаем инпуты управляемыми и получаем с них данные */}
                 <h2>Login</h2>
-                <input type="text" placeholder="Username" />
-                <input type="password" placeholder="Password" />
-                <button>Login</button>
+                <input type="text" placeholder="Username"
+                    onChange={e => {
+                        setUsername(e.target.value)
+                    }}
+                />
+                <input type="password" placeholder="Password" 
+                    onChange={e => {
+                        setPassword(e.target.value)
+                    }}
+                />
+                <button onClick={login}>Login</button>
             </div>
+
+            {/* Если авторизованы, то отобразим сообщение в нашем компоненте об этом. */}
+            <h1>{loginStatus}</h1>
         </div>
     );
 };
